@@ -9,6 +9,7 @@ var router = express.Router();
 var fetch = require('../fetch');
 
 var { GRAPH_ME_ENDPOINT } = require('../authConfig');
+const {AxiosError} = require("axios");
 
 // custom middleware to check auth state
 function isAuthenticated(req, res, next) {
@@ -19,21 +20,33 @@ function isAuthenticated(req, res, next) {
   next();
 };
 
-router.get('/id',
-    isAuthenticated, // check if user is authenticated
-    async function (req, res, next) {
-      res.render('id', { idTokenClaims: req.session.account.idTokenClaims });
-    }
-);
-
 router.get('/profile',
     isAuthenticated, // check if user is authenticated
     async function (req, res, next) {
       try {
-        const graphResponse = await fetch(GRAPH_ME_ENDPOINT, req.session.accessToken);
-        res.render('profile', { profile: graphResponse });
+        if(req.session.accessToken){
+            const graphResponse = await fetch(GRAPH_ME_ENDPOINT, req.session.accessToken);
+
+            if(graphResponse.officeLocation == "C&D"){
+                res.status(200).json({
+                    "givenName": graphResponse.givenName,
+                    "surname": graphResponse.surname,
+                    "mail": graphResponse.mail
+                })
+            }else{
+                res.status(401).send("Invalid permission. You aren't from C&D Organization.")
+            }
+        }else{
+            res.status(400).send("Bad token. Please acquire it.")
+        }
+
       } catch (error) {
-        next(error);
+          if(error instanceof AxiosError){
+              res.status(error.message.response.status).send(error.message.response.message);
+          }else{
+              console.log(error)
+              next(error);
+          }
       }
     }
 );

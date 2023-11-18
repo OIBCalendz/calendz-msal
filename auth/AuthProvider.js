@@ -114,7 +114,7 @@ class AuthProvider {
                         successRedirect: options.successRedirect || '/',
                     })(req, res, next);
                 }
-
+                console.log(error)
                 next(error);
             }
         };
@@ -149,6 +149,7 @@ class AuthProvider {
                 const state = JSON.parse(this.cryptoProvider.base64Decode(req.body.state));
                 res.redirect(state.successRedirect);
             } catch (error) {
+                console.log(error)
                 next(error);
             }
         }
@@ -226,6 +227,7 @@ class AuthProvider {
                 const authCodeUrlResponse = await msalInstance.getAuthCodeUrl(req.session.authCodeUrlRequest);
                 res.redirect(authCodeUrlResponse);
             } catch (error) {
+                console.log(error)
                 next(error);
             }
         };
@@ -248,6 +250,7 @@ class AuthProvider {
 
             return await response.data;
         } catch (error) {
+            console.log(error)
             throw error;
         }
     }
