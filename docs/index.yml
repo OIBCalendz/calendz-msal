@@ -1,0 +1,55 @@
+#%RAML 1.0
+---
+title: Calendz MSAL API
+baseUri: https://docs-calendz-msal.locascio.fr/{version}
+mediaType: application/json
+version: v1
+protocols: [HTTPS]
+
+/auth:
+  /signin:
+    get:
+      description: When the user selects the Login link, which triggers the /auth/signin route, the login controller takes over to authenticate the user with the Microsoft identity platform.
+      responses:
+        302:
+
+  /acquireToken:
+    get:
+      description: Store in the session the tokenCache, accessToken, idToken, account
+      responses:
+        302:
+
+  /redirect:
+    post:
+      description: Get or store in the session the tokenCache, accessToken, idToken, account
+      responses:
+        302:
+
+/users:
+  /profile:
+    get:
+      description: Get user info
+      responses:
+        200:
+          description: Successful
+          body:
+            application/json:
+              type: object
+              example: |
+                {
+                    "givenName": "John",
+                    "surname": "Doe",
+                    "mail": "j.doe@ecoles-epsi.net"
+                }
+        401:
+          description: Invalid permission
+          body:
+            application/json:
+              type: string
+              example: "Invalid permission. You aren't from C&D Organization."
+        400:
+          description: Bad Access Token. You need to use /auth/acquireToken before.
+          body:
+            application/json:
+              type: string
+              example: "Bad token. Please acquire it."
